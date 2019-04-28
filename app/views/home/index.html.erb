@@ -1,0 +1,19 @@
+<div class="container tetx-center m-2">
+  <% if flash[:notice] %>
+    <div class="alert alert-info pl-2 pr-2"><%= flash[:notice] %></div>
+  <% end %>
+
+  <%= form_with url: download_path, local: true do |form| %>
+    <div class="form-group pr-2 pl-2">
+      <%= form.text_field :request, class: 'form-control', placeholder: 'put your request here', required: true %>
+    </div>
+
+    <div class="form-group pr-2 pl-2">
+      <%= form.text_field :count, class: 'form-control', placeholder: 'minimum count of records', required: true %>
+    </div>
+
+    <div class="form-group pr-2 pl-2">
+      <%= form.submit 'get results', data: { disable_with: false }, class: 'btn btn-primary' %>
+    </div>
+  <% end %>
+</div>
