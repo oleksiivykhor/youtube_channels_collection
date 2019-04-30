@@ -65,8 +65,8 @@ module GoogleAPI
       # When CREDENTIALS_PATH file does not exists we need to approve access and
       # get authorization code to store credentials
       credentials = authorizer.get_credentials(USER_ID)
-      credentials ||= store_credentials(authorizer)
-      credentials
+      store_credentials(authorizer) unless credentials
+      authorizer.get_credentials(USER_ID)
     end
 
     def store_credentials(authorizer)
@@ -77,36 +77,35 @@ module GoogleAPI
     end
 
     def authorization_code(authorizer)
+      return @authorization_code if @authorization_code
+
       url = authorizer.get_authorization_url(base_url: REDIRECT_URI)
       visit url
       fill_form 'identifier', google_credentials['email']
       fill_form 'password', google_credentials['password']
       find(:xpath, "//*[contains(text(), '#{google_credentials['email']}')]").click
-      wait_until_url_change current_url
+      wait_until_loading
       find(:xpath, "//div[contains(@data-custom-id, 'allow')]").click
-      wait_until_url_change current_url
+      wait_until_loading
       find(:xpath, "//div[contains(@id, 'approve')]").click
-      wait_until_url_change current_url
+      wait_until_loading
 
-      current_url[/code=([\w\W]+?)(?:\&|$)/, 1]
+      @authorization_code ||= current_url[/code=([\w\W]+?)(?:\&|$)/, 1]
     end
 
     def fill_form(title, value)
       fill_in title, with: value
       find(:xpath, "//div[contains(@id, '#{title}Next')]").click
-      wait_until_url_change current_url
+      wait_until_loading
     end
 
     def google_credentials
       YAML.load_file(Rails.root.join('config/google_credentials.yml'))
     end
 
-    def wait_until_url_change(url)
-      Timeout::timeout(15) do
-        loop do
-          break if url != current_url
-        end
-      end
+    def wait_until_loading
+      path = "//div[contains(@role, 'progressbar')]"
+      assert_no_selector(:xpath, path, wait: 10) if has_xpath? path
     end
 
     def service

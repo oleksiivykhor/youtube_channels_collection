@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe GoogleAPI::GoogleAPIAdapter do
   let(:adapter) { described_class.new('request', 5) }
 
-  it { expect(adapter.results.count).to be > 5 }
+  it { expect(adapter.results.count).to eq 5 }
 
   context 'when Google::Apis::ClientError was raised' do
     before do
