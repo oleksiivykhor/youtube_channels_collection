@@ -27,4 +27,23 @@ RSpec.describe YoutubeChannels::Channel do
       expect(channel.email).to be_nil
     end
   end
+
+  context 'when channel descritpion contains more than one email address' do
+    let(:email) { 'first@email.com, second@email.com' }
+    before { data[:snippet][:description] = email }
+
+    it 'returns correct email' do
+      expect(channel.email).to eq email
+    end
+  end
+
+  context 'when channel description contains duplicate emails' do
+    let(:email) { 'first@email.com, second@email.com' }
+
+    before { data[:snippet][:description] = "#{email} #{email}" }
+
+    it 'returns correct email' do
+      expect(channel.email).to eq email
+    end
+  end
 end

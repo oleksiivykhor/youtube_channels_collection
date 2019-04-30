@@ -11,7 +11,8 @@ module YoutubeChannels
       @title = json['snippet']['title']
       @description = json['snippet']['description']
       @subscribers_amount = json['statistics']['subscriberCount']
-      @email = @description[regex]
+      emails = @description.scan(regex).flatten.uniq
+      @email = emails.any? ? emails.join(', ') : nil
     end
   end
 end
